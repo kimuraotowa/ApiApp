@@ -22,8 +22,8 @@ class ApiAdapter : ListAdapter<Shop,ApiItemViewHolder>(ApiItemCallback()) {
     }
 
     //指定された位置(position)のViewにShopの情報をセットする
-    override fun onBindViewHoleder(holder:ApiItemViewHolder,position:Int){
-        holder.bind(getItem(position),position)
+    override fun onBindViewHolder(holder: ApiItemViewHolder, position: Int) {
+        holder.bind(getItem(position), position)
     }
 }
 
