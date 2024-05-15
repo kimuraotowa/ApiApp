@@ -1,5 +1,6 @@
 package jp.techacademy.otowa.kimura.apiapp
 
+import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -18,9 +19,21 @@ class ApiFragment : Fragment() {
     private var _binding: FragmentApiBinding? = null
     private val binding get() = _binding!!
 
+    //遅らせる
     private val apiAdapter by lazy { ApiAdapter() }
     private val handler = Handler(Looper.getMainLooper())
 
+    //Fragment -> ActivityにFavoriteの通知
+    private var fragmentCallback: FragmentCallback? = null
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is FragmentCallback) {
+            fragmentCallback = context
+        }
+    }
+
+    //MainでゆうとonCreate:Fragment起動時に呼ばれる
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -33,6 +46,18 @@ class ApiFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         // ここから初期化処理を行う
+
+        // ApiAdapterのお気に入り追加、削除用のメソッドの追加を行う
+        apiAdapter.apply {
+            // Adapterの処理をそのままMainActivityに通知する
+            onClickAddFavorite = {
+                fragmentCallback?.onAddFavorite(it)
+            }
+            // Adapterの処理をそのままActivityに通知する
+            onClickDeleteFavorite = {
+                fragmentCallback?.onDeleteFavorite(it.id)
+            }
+        }
         // RecyclerViewの初期化
         binding.recyclerView.apply {
             adapter = apiAdapter
@@ -42,6 +67,12 @@ class ApiFragment : Fragment() {
             updateData()
         }
         updateData()
+    }
+
+    //お気に入りが削除された時の処理（Activityからコールされる）
+    fun updateView() {
+        // RecyclerViewのAdapterに対して再描画のリクエストをする
+        apiAdapter.notifyItemRangeChanged(0, apiAdapter.itemCount)
     }
 
     private fun updateData() {
@@ -76,6 +107,7 @@ class ApiFragment : Fragment() {
                 val jsonAdapter = moshi.adapter(ApiResponse::class.java)
 
                 var list = listOf<Shop>()
+                //body:本体の中身
                 response.body?.string()?.also {
                     val apiResponse = jsonAdapter.fromJson(it)
                     if (apiResponse != null) {
