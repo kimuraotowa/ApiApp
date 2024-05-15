@@ -9,7 +9,7 @@ import jp.techacademy.otowa.kimura.apiapp.databinding.ActivityMainBinding
 class MainActivity : AppCompatActivity() {
     private lateinit var binding:ActivityMainBinding
 
-    //by lazy:アプリの起動速度向上
+
     private val viewPagerAdapter by lazy { ViewPagerAdapter(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
