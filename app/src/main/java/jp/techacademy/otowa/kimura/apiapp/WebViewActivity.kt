@@ -16,9 +16,12 @@ class WebViewActivity : AppCompatActivity() {
 
         //IntentからURL取得→URLのWebページをWebViewの表示する
         binding.webView.loadUrl(intent.getStringExtra(KEY_URL).toString())
+
+
     }
 
     //companion object:クラスのインスタンスを生成せずに、メソッドやプロパティを定義するための機能
+    //urlのkeyを一箇所で管理してる
     companion object {
         private const val KEY_URL = "key_url"
         //startメソッド: WebActivityの遷移処理をしている
