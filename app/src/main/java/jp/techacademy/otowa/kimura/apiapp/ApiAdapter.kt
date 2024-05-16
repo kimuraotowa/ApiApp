@@ -17,6 +17,9 @@ class ApiAdapter : ListAdapter<Shop,ApiItemViewHolder>(ApiItemCallback()) {
     //一覧画面から削除するときのコールバック（ApiFragmentへの通知するメソッド）
     var onClickDeleteFavorite: ((Shop) -> Unit)? = null
 
+    //Itemを押した時のメソッド
+    var onClickItem: ((String) -> Unit)? = null
+
     //ViewHolderを生成して返す
     override fun onCreateViewHolder(parent:ViewGroup,viewType:Int):ApiItemViewHolder{
         //ViewBindingを引数にApiItemViewHolderを生成
@@ -35,17 +38,23 @@ class ApiAdapter : ListAdapter<Shop,ApiItemViewHolder>(ApiItemCallback()) {
 class ApiItemViewHolder(private val binding:RecyclerFavoriteBinding):
     RecyclerView.ViewHolder(binding.root){
     fun bind(shop: Shop,position: Int,adapter: ApiAdapter){
-        //偶数（しろ）と奇数（黒）で背景の色を変更
-        //setBackgroundColor:背景色設定
-        binding.rootView.setBackgroundColor(
-            //ContextCompat.getColor:色の値を取得
-            ContextCompat.getColor(
-                //色のIDを渡す
-                binding.rootView.context,
-                //position % 2 == 0で偶数か奇数か
-                if(position % 2 == 0) android.R.color.white else android.R.color.darker_gray
+        binding.rootView.apply {
+            //偶数（しろ）と奇数（黒）で背景の色を変更
+            //setBackgroundColor:背景色設定
+            binding.rootView.setBackgroundColor(
+                //ContextCompat.getColor:色の値を取得
+                ContextCompat.getColor(
+                    //色のIDを渡す
+                    binding.rootView.context,
+                    //position % 2 == 0で偶数か奇数か
+                    if (position % 2 == 0) android.R.color.white else android.R.color.darker_gray
+                )
             )
-        )
+            setOnClickListener {
+                adapter.onClickItem?.invoke(if (shop.couponUrls.sp.isNotEmpty()) shop.couponUrls.sp else shop.couponUrls.pc)
+            }
+        }
+
         //nameTextViewのTextプロパティに代入されたオブジェクトのnameプロパティを代入
         binding.nameTextView.text = shop.name
 
@@ -77,7 +86,6 @@ class ApiItemViewHolder(private val binding:RecyclerFavoriteBinding):
                 adapter.notifyItemChanged(position)
             }
         }
-
     }
 }
 
