@@ -46,6 +46,11 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
         })
     }
 
+    //FragmentCallbackで追加したonClickItem()メソッド
+    override fun onClickItem(url: String) {
+        WebViewActivity.start(this,url)
+    }
+
     /**
      * お気に入りタブにトーストを表示
      */
