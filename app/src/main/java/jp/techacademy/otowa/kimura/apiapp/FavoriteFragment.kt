@@ -18,6 +18,7 @@ class FavoriteFragment: Fragment() {
     // FavoriteFragment -> MainActivity に削除を通知する
     private var fragmentCallback: FragmentCallback? = null
 
+    //
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is FragmentCallback) {
@@ -44,7 +45,12 @@ class FavoriteFragment: Fragment() {
             onClickDeleteFavorite = {
                 fragmentCallback?.onDeleteFavorite(it.id)
             }
+            //Itemをクリックしたとき
+            onClickItem = {
+                fragmentCallback?.onClickItem(it)
+            }
         }
+
         // RecyclerViewの初期化
         binding.recyclerView.apply {
             adapter = favoriteAdapter
