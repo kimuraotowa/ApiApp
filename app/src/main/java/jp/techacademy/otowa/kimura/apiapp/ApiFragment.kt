@@ -1,5 +1,6 @@
 package jp.techacademy.otowa.kimura.apiapp
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.os.Handler
@@ -9,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.squareup.moshi.Moshi
 import jp.techacademy.otowa.kimura.apiapp.databinding.FragmentApiBinding
 import okhttp3.*
@@ -25,6 +27,19 @@ class ApiFragment : Fragment() {
 
     //Fragment -> ActivityにFavoriteの通知
     private var fragmentCallback: FragmentCallback? = null
+
+    //一覧に表示するShopを保持
+    //追加ページを読み込むため、mutableListとして定義
+    private var list = mutableListOf<Shop>()
+
+    //現在のページ
+    //最初のページを0
+    private var page = 0
+
+    //Apiでデータを読み込み中ですフラグ。
+    //連続読み込みを制御するための記載
+    //trueの時はAPI通信をさせない
+    private var isLoading = false
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -67,6 +82,37 @@ class ApiFragment : Fragment() {
         binding.recyclerView.apply {
             adapter = apiAdapter
             layoutManager = LinearLayoutManager(requireContext()) // 一列ずつ表示
+
+            //Scrollを検知するListenerを実装する。
+            //これによって、RecyclerViewの下端に近づいた時に次のページを読み込んで、下に付け足す
+            addOnScrollListener(object  : RecyclerView.OnScrollListener(){
+                // dx はx軸方向の変化量(横) dy はy軸方向の変化量(縦)
+                // ここではRecyclerViewは縦方向なので、dyだけ考慮する
+                override fun onScrolled(recyclerView: RecyclerView, dx:Int, dy:Int){
+                    super.onScrolled(recyclerView, dx, dy)
+
+                    // 縦方向の変化量(スクロール量)が0の時は動いていないので何も処理はしない
+                    if (dy == 0){
+                        return
+                    }
+                    //RecyclerViewの現在の表示アイテム数
+                    val totalCount = apiAdapter.itemCount
+
+                    //RecyclerViewの現在見えている最後のViewHolderのPosition
+                    val lastVisibleItem =
+                        (layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
+
+                    // totalCountとlastVisibleItemから全体のアイテム数のうちどこまでが見えているかがわかる
+                    // (例:totalCountが20、lastVisibleItemが15の時は、現在のスクロール位置から下に5件見えていないアイテムがある)
+                    // 一番下にスクロールした時に次の20件を表示する等の実装が可能になる。
+                    // ユーザビリティを考えると、一番下にスクロールしてから追加した場合、一度スクロールが止まるので、ユーザーは気付きにくい
+
+                    // ここでは、一番下から5番目を表示した時に追加読み込みする様に実装する
+                    if (!isLoading && lastVisibleItem >= totalCount - 6) { // 読み込み中でない、かつ、現在のスクロール位置から下に5件見えていないアイテムがある
+                        updateData(true)
+                    }
+                }
+            })
         }
         binding.swipeRefreshLayout.setOnRefreshListener {
             updateData()
@@ -80,12 +126,28 @@ class ApiFragment : Fragment() {
         apiAdapter.notifyItemRangeChanged(0, apiAdapter.itemCount)
     }
 
-    private fun updateData() {
+    private fun updateData(isAdd:Boolean = false) {
+        // 読み込み中なら処理を行わずに終了
+        if (isLoading) {
+            return
+        } else {
+            isLoading = true
+        }
+        // 追加モードならページを加算
+        if (isAdd) {
+            page++
+        } else {
+            page = 0
+            list.clear()
+        }
+        // 開始位置を計算
+        val start = page * COUNT + 1
+
         val url = StringBuilder()
             .append(getString(R.string.base_url)) // https://webservice.recruit.co.jp/hotpepper/gourmet/v1/
             .append("?key=").append(getString(R.string.api_key)) // Apiを使うためのApiKey
-            .append("&start=").append(1) // 何件目からのデータを取得するか
-            .append("&count=").append(COUNT) // 1回で20件取得する
+            .append("&start=").append(start) // 何件目からのデータを取得するか
+            .append("&count=").append(COUNT) // Api通信で20件取得する
             .append("&keyword=")
             .append(getString(R.string.api_keyword)) // お店の検索ワード。ここでは例として「ランチ」を検索
             .append("&format=json") // ここで利用しているAPIは戻りの形をxmlかjsonが選択することができる。Androidで扱う場合はxmlよりもjsonの方が扱いやすいので、jsonを選択
@@ -104,6 +166,8 @@ class ApiFragment : Fragment() {
                 handler.post {
                     updateRecyclerView(listOf())
                 }
+                //読み込み中のフラグをおる
+                isLoading = false
             }
 
             override fun onResponse(call: Call, response: Response) { // 成功時の処理
@@ -111,17 +175,18 @@ class ApiFragment : Fragment() {
                 val moshi = Moshi.Builder().build()
                 val jsonAdapter = moshi.adapter(ApiResponse::class.java)
 
-                var list = listOf<Shop>()
                 //body:本体の中身
                 response.body?.string()?.also {
                     val apiResponse = jsonAdapter.fromJson(it)
                     if (apiResponse != null) {
-                        list = apiResponse.results.shop
+                        list += apiResponse.results.shop
                     }
                 }
                 handler.post {
                     updateRecyclerView(list)
                 }
+                //読み込み中のフラグをおる
+                isLoading = false
             }
         })
     }
