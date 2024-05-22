@@ -47,8 +47,15 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
     }
 
     //FragmentCallbackで追加したonClickItem()メソッド
-    override fun onClickItem(url: String) {
-        WebViewActivity.start(this,url)
+    override fun onClickItem(shop:Shop) {
+        WebViewActivity.start(
+            this,
+            shop.address,
+            shop.couponUrls.sp.ifEmpty { shop.couponUrls.pc },
+            shop.id,
+            shop.logoImage,
+            shop.name,
+        )
     }
 
     /**
@@ -72,6 +79,7 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
             name = shop.name
             imageUrl = shop.logoImage
             url = shop.couponUrls.sp.ifEmpty { shop.couponUrls.pc }
+            address = shop.address
         })
         (viewPagerAdapter.fragments[VIEW_PAGER_POSITION_FAVORITE] as FavoriteFragment).updateData()
     }
@@ -83,9 +91,13 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
         showConfirmDeleteFavoriteDialog(id)
     }
 
+    //ダイアログ表示
     private fun showConfirmDeleteFavoriteDialog(id: String) {
         AlertDialog.Builder(this)
+                //ダイアログのタイトルを設定
+                //タイトルのテキストリソースのID
             .setTitle(R.string.delete_favorite_dialog_title)
+            //ダイアログのメッセージを設定
             .setMessage(R.string.delete_favorite_dialog_message)
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 deleteFavorite(id)

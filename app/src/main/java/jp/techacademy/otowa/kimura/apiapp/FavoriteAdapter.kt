@@ -15,7 +15,8 @@ class FavoriteAdapter : ListAdapter<FavoriteShop, FavoriteItemViewHolder>(Favori
     var onClickDeleteFavorite: ((FavoriteShop) -> Unit)? = null
 
     //Itemをクリックした時のメソッド
-    var onClickItem: ((String) -> Unit)? = null
+    var onClickItem: ((Shop) -> Unit)? = null
+
 
     /**
      * ViewHolderを生成して返す
@@ -47,10 +48,18 @@ class FavoriteItemViewHolder(private val binding: RecyclerFavoriteBinding) :
                 )
             )
             //クリック時のイベントリスナーを割り当て
-            setOnClickListener {
-                adapter.onClickItem?.invoke(favoriteShop.url)
+            binding.rootView.setOnClickListener {
+                          val customShop = Shop(
+                                address = favoriteShop.address,
+                                id = favoriteShop.id,
+                                logoImage = favoriteShop.imageUrl,
+                                name = favoriteShop.name,
+                                couponUrls = CouponUrls(pc = favoriteShop.url, sp = favoriteShop.url)
+                            )
+                adapter.onClickItem?.invoke(customShop)
             }
         }
+
         //nameTextViewのTextプロパティに代入されたオブジェクトのnameのプロパティを代入
         binding.nameTextView.text = favoriteShop.name
 

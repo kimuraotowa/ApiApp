@@ -4,14 +4,16 @@ import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.types.RealmObject
+import java.io.Serializable
 import io.realm.kotlin.types.annotations.PrimaryKey
 
-open class FavoriteShop(id: String, imageUrl: String, name: String, url: String) : RealmObject {
+open class FavoriteShop(id: String, imageUrl: String, name: String, url: String, address: String) : RealmObject,Serializable {
     @PrimaryKey
     var id: String = ""
     var imageUrl: String = ""
     var name: String = ""
     var url: String = ""
+    var address : String = ""
 
     // 初期化処理
     init {
@@ -19,10 +21,11 @@ open class FavoriteShop(id: String, imageUrl: String, name: String, url: String)
         this.imageUrl = imageUrl
         this.name = name
         this.url = url
+        this.address = address
     }
 
     // realm内部呼び出し用にコンストラクタを用意
-    constructor() : this("", "", "", "")
+    constructor() : this("", "", "", "","")
 
     companion object {
         /**
@@ -36,7 +39,7 @@ open class FavoriteShop(id: String, imageUrl: String, name: String, url: String)
             // Realmデータベースからお気に入り情報を取得
             // mapでディープコピーしてresultに代入する
             val result = realm.query<FavoriteShop>().find()
-                .map { FavoriteShop(it.id, it.imageUrl, it.name, it.url) }
+                .map { FavoriteShop(it.id, it.imageUrl, it.name, it.url, it.address) }
 
             // Realmデータベースとの接続を閉じる
             realm.close()
