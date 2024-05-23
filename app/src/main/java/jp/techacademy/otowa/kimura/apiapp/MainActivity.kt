@@ -1,6 +1,5 @@
 package jp.techacademy.otowa.kimura.apiapp
 
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
@@ -55,9 +54,9 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
 
 
 
-    /**
-     * お気に入りタブにトーストを表示
-     */
+
+     //お気に入りタブにトーストを表示
+
     private fun showFavoriteTabInfo(tab: TabLayout.Tab) {
         if (tab.position == VIEW_PAGER_POSITION_FAVORITE && FavoriteShop.findAll()
                 .isEmpty()
@@ -117,11 +116,6 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
         private const val VIEW_PAGER_POSITION_FAVORITE = 1
     }
 
-    override fun onStart() {
-        super.onStart()
-        Log.d("lifecycle","onStart")
-    }
-
     override fun onResume() {
         super.onResume()
 
@@ -133,27 +127,6 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
             (viewPagerAdapter.fragments[VIEW_PAGER_POSITION_FAVORITE] as FavoriteFragment).updateData()
         }catch (e:Exception){}
 
-        Log.d("lifecycle","onResume")
-    }
-
-    override fun onPause() {
-        super.onPause()
-        Log.d("lifecycle","onPause")
-    }
-
-    override fun onStop() {
-        super.onStop()
-        Log.d("lifecycle","onStop")
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-        Log.d("lifecycle","onRestart")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d("lifecycle","onDestroy")
     }
 
 }

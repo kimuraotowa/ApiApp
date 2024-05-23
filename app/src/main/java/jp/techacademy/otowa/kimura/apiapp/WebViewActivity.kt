@@ -39,6 +39,7 @@ class WebViewActivity : AppCompatActivity() {
             isFavorite = FavoriteShop.findBy(favoriteShop.id) != null
 
             // 星の画像を設定
+            // setImageResource:引数に指定した画像リソースをImageViewに設定するためのメソッド
             setImageResource(if (isFavorite) R.drawable.ic_star else R.drawable.ic_star_bprder)
 
             // 星をタップした時の処理

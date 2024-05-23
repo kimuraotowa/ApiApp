@@ -8,16 +8,19 @@
     android:background="@android:color/white">
 
     <!---app:layout_constraintDimensionRati:Viewの幅と高さ-->
+
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="69dp"
+        android:layout_height="67dp"
+        android:layout_marginStart="16dp"
         android:scaleType="centerCrop"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="ContentDescription"/>
+        app:layout_constraintVertical_bias="0.461"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/nameTextView"
