@@ -17,7 +17,6 @@ class FavoriteAdapter : ListAdapter<FavoriteShop, FavoriteItemViewHolder>(Favori
     //Itemをクリックした時のメソッド
     var onClickItem: ((Shop) -> Unit)? = null
 
-
     /**
      * ViewHolderを生成して返す
      */

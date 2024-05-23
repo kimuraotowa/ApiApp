@@ -1,5 +1,6 @@
 package jp.techacademy.otowa.kimura.apiapp
 
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
@@ -15,6 +16,7 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
     private val viewPagerAdapter by lazy { ViewPagerAdapter(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -48,15 +50,10 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
 
     //FragmentCallbackで追加したonClickItem()メソッド
     override fun onClickItem(shop:Shop) {
-        WebViewActivity.start(
-            this,
-            shop.address,
-            shop.couponUrls.sp.ifEmpty { shop.couponUrls.pc },
-            shop.id,
-            shop.logoImage,
-            shop.name,
-        )
+        WebViewActivity.start(this, shop)
     }
+
+
 
     /**
      * お気に入りタブにトーストを表示
@@ -70,9 +67,8 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
         }
     }
 
-    /**
-     * Favoriteに追加するときのメソッド(Fragment -> Activity へ通知する)
-     */
+
+      //Favoriteに追加するときのメソッド(Fragment -> Activity へ通知する)
     override fun onAddFavorite(shop: Shop) {
         FavoriteShop.insert(FavoriteShop().apply {
             id = shop.id
@@ -84,9 +80,8 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
         (viewPagerAdapter.fragments[VIEW_PAGER_POSITION_FAVORITE] as FavoriteFragment).updateData()
     }
 
-    /**
-     * Favoriteから削除するときのメソッド(Fragment -> Activity へ通知する)
-     */
+
+     // Favoriteから削除するときのメソッド(Fragment -> Activity へ通知する)
     override fun onDeleteFavorite(id: String) {
         showConfirmDeleteFavoriteDialog(id)
     }
@@ -116,8 +111,49 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
         (viewPagerAdapter.fragments[VIEW_PAGER_POSITION_FAVORITE] as FavoriteFragment).updateData()
     }
 
+
     companion object {
         private const val VIEW_PAGER_POSITION_API = 0
         private const val VIEW_PAGER_POSITION_FAVORITE = 1
     }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d("lifecycle","onStart")
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        //try{}catch():例外をスキップしたり、内容ごとに処理をおこない異常終了を防ぐことができる
+        try {
+            //新着のリスト更新
+            (viewPagerAdapter.fragments[VIEW_PAGER_POSITION_API] as ApiFragment).updateView()
+            //お気に入りリストの更新
+            (viewPagerAdapter.fragments[VIEW_PAGER_POSITION_FAVORITE] as FavoriteFragment).updateData()
+        }catch (e:Exception){}
+
+        Log.d("lifecycle","onResume")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d("lifecycle","onPause")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d("lifecycle","onStop")
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        Log.d("lifecycle","onRestart")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("lifecycle","onDestroy")
+    }
+
 }

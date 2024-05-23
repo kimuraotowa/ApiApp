@@ -1,5 +1,6 @@
 package jp.techacademy.otowa.kimura.apiapp
 
+import android.util.Log
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater

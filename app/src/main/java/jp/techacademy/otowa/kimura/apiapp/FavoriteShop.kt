@@ -4,10 +4,9 @@ import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.types.RealmObject
-import java.io.Serializable
 import io.realm.kotlin.types.annotations.PrimaryKey
 
-open class FavoriteShop(id: String, imageUrl: String, name: String, url: String, address: String) : RealmObject,Serializable {
+open class FavoriteShop(id: String, imageUrl: String, name: String, url: String, address: String) : RealmObject {
     @PrimaryKey
     var id: String = ""
     var imageUrl: String = ""
